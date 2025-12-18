@@ -1,16 +1,31 @@
 import { test, expect } from '../_fixtures/fixturesGeneric';
 
-test('Add short bio from settings', async ({ pages, user }) => {
-  const page = pages[0];
+test.describe('User Settings - short bio', () => {
+  test.beforeEach(async ({ pages, user }) => {
+    const page = pages[0];
 
-  await page.goto('/settings');
+    // Logowanie użytkownika
+    await page.goto('/login');
+    await page.fill('input[placeholder="Email"]', user.email);
+    await page.fill('input[placeholder="Password"]', user.password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('/'); // upewniamy się, że zalogowany
+  });
 
-  const bioInput = page.locator('textarea[placeholder="Short bio about you"]');
-  await bioInput.fill('This is a test bio.');
+  test('Add short bio from settings', async ({ pages }) => {
+    const page = pages[0];
 
-  await page.locator('button[type="submit"]').click();
+    await page.goto('/settings');
 
-  await expect(page.locator('.success-message')).toHaveText(
-    'Your settings have been saved.',
-  );
+    const bioInput = page.locator(
+      'textarea[placeholder="Short bio about you"]',
+    );
+    await bioInput.fill('This is a test bio.');
+
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('.success-message')).toHaveText(
+      'Your settings have been saved.',
+    );
+  });
 });

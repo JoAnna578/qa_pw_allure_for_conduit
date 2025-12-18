@@ -1,18 +1,29 @@
 import { test, expect } from '../_fixtures/fixturesGeneric';
 
-test('Add profile picture URL from settings', async ({ pages, user }) => {
-  const page = pages[0];
+test.describe('User Settings - profile picture', () => {
+  test.beforeEach(async ({ pages, user }) => {
+    const page = pages[0];
 
-  await page.goto('/settings');
+    // Logowanie użytkownika
+    await page.goto('/login');
+    await page.fill('input[placeholder="Email"]', user.email);
+    await page.fill('input[placeholder="Password"]', user.password);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('/'); // upewniamy się, że zalogowany
+  });
 
-  const imageInput = page.locator(
-    'input[placeholder="URL of profile picture"]',
-  );
-  await imageInput.fill('https://example.com/avatar.png');
+  test('Add profile picture URL from settings', async ({ pages }) => {
+    const page = pages[0];
+    await page.goto('/settings');
 
-  await page.locator('button[type="submit"]').click();
+    const imageInput = page.locator(
+      'input[placeholder="URL of profile picture"]',
+    );
+    await imageInput.fill('https://example.com/avatar.png');
 
-  await expect(page.locator('.success-message')).toHaveText(
-    'Your settings have been saved.',
-  );
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('.success-message')).toHaveText(
+      'Your settings have been saved.',
+    );
+  });
 });
